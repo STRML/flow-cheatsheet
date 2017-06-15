@@ -61,7 +61,7 @@ BUILTINS_PRIVATE = [
     ('$Subtype<T>', 'https://flow.org/en/docs/types/utilities/#toc-subtype'),
     ('$Supertype<T>', 'https://flow.org/en/docs/types/utilities/#toc-supertype'),
 ]
-OUTPUT_FILE = 'dist/index.html'
+OUTPUT_FILE = 'docs/index.html'
 
 Result = namedtuple('Result', ['name', 'line_no', 'members', 'filename', 'type'])
 
