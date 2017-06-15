@@ -1,0 +1,27 @@
+body {
+  position: relative;
+}
+
+.container {
+  padding: 40px 0;
+}
+
+nav[data-toggle='toc'] {
+  margin-top: 30px;
+}
+
+.panel-body {
+  column-count: 3;
+}
+
+/* small screens */
+@media (max-width: 768px) {
+  /* override the Affix plugin so that the navigation isn't sticky */
+  nav.affix[data-toggle='toc'] {
+    position: static;
+  }
+
+  .panel-body {
+    column-count: 1;
+  }
+}

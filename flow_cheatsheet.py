@@ -105,7 +105,7 @@ def get_lib_results():
         public_results = [result for result in file_results if not is_magic(result)]
         magic_results = [result for result in file_results if is_magic(result)]
         results.append((filename, heading, public_results))
-        results.append((filename + '-private', heading + ' "private" types', magic_results))
+        results.append((filename + '-private', heading + ' &lt;private&gt;', magic_results))
     return results
 
 def download_file(url):
@@ -200,7 +200,25 @@ def post_process(results):
 def write_output(results):
     fout = open(OUTPUT_FILE, 'w')
 
+    fout.write('<html><head>')
     fout.write('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">\n')
+    fout.write('<link rel="stylesheet" href="https://cdn.rawgit.com/afeld/bootstrap-toc/v0.4.1/dist/bootstrap-toc.min.css">\n')
+    fout.write('<link rel="stylesheet" href="style.css">\n')
+    fout.write('<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>')
+    fout.write('<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>')
+    fout.write('<script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v0.4.1/dist/bootstrap-toc.min.js"></script>')
+    fout.write('<script src="app.js"></script>')
+
+    fout.write('</head>')
+    fout.write('<body data-spy="scroll" data-target="#toc">')
+    fout.write('<section class="container">')
+
+    # Main content row
+    fout.write('<div class="row">')
+
+    # Contents
+    fout.write('<div class="col-sm-9">')
+    fout.write('<h1>Flow Cheatsheet</h1>')
     fout.write('<p>\n')
     fout.write('<a href="https://flow.org/">Flow</a> is a static type checker for Javascript.\n')
     fout.write('This is a list of Flow types generated from the source code in ')
@@ -209,14 +227,9 @@ def write_output(results):
     fout.write('Fixes welcome.\n')
     fout.write('</p>\n')
     fout.write('<p>Note: I created a separate section for "private" or "magic" types with a <code>$</code> in the name.\n')
-    fout.write('See the <a href="http://sitr.us/2015/05/31/advanced-features-in-flow.html">note here</a> and <a href="https://github.com/facebook/flow/issues/2197#issuecomment-238001710">comment here</a>. <em>Update</em>: Some these types are now <a href="https://flow.org/en/docs/types/utilities/">documented here</a>.</p>')
-    fout.write('<p>Flow version: {version}</p>\n'.format(version=COMMIT))
-    fout.write('<ul class="list-unstyled">\n')
-    fout.write('  <li><a href="#builtins">Built-in types</a></li>')
-    for filename, heading in FILES:
-        fout.write('  <li><a href="#{filename}">{heading}</a></li>\n'.format(
-            filename=filename, heading=heading))
-    fout.write('</ul>\n')
+    fout.write('See the <a href="http://sitr.us/2015/05/31/advanced-features-in-flow.html">note here</a> and <a href="https://github.com/facebook/flow/issues/2197#issuecomment-238001710">comment here</a>.')
+    fout.write('<br /><em>Update</em>: Some these types are now <a href="https://flow.org/en/docs/types/utilities/">documented here</a>.</p>')
+    fout.write('<p><blockquote><small>Flow version: {version}</small></blockquote></p>\n'.format(version=COMMIT))
 
     for id_attr, heading, file_results in results:
 
@@ -228,27 +241,29 @@ def write_output(results):
 
         fout.write('<div class="panel panel-default">\n')
         fout.write('<div class="panel-heading"><h4 id={id_attr}>{heading}</h4></div>\n'.format(
-            id_attr=id_attr, heading=heading, count=len(lines)))
+            id_attr=id_attr.replace('/', '_').replace('.', '_'), heading=heading, count=len(lines)))
         fout.write('<div class="panel-body">\n')
-        fout.write('<div class="row">\n')
 
-        ul_tag_count = 0
-        for group in grouped:
+        fout.write('<ul>')
+        for line in lines:
+            fout.write(line + '\n')
+        fout.write('</ul>')
 
-            extra_ul_tags = '<ul>' * ul_tag_count
-            fout.write('<div class="col-sm-4"><ul>' + extra_ul_tags + '\n')
-            for line in group:
-                if '<ul>' in line:
-                    ul_tag_count += 1
-                if '</ul>' in line:
-                    ul_tag_count -= 1
-                fout.write(line + '\n')
+        fout.write('</div></div>\n')
 
-            extra_ul_tags = '</ul>' * ul_tag_count
-            fout.write(extra_ul_tags + '</ul></div>\n')
+    # End contents
+    fout.write('</div>')
 
-        fout.write('</div></div></div>\n')
+    # TOC
+    fout.write('<div class="col-sm-3">')
+    fout.write('<nav id="toc" data-spy="affix" data-toggle="toc" class="affix"></nav>')
+    fout.write('</div>')
 
+    # End main content row
+    fout.write('</div>')
+
+    fout.write('</section>')
+    fout.write('</body></html>')
     fout.close()
 
 def generate_output_lines(results):
